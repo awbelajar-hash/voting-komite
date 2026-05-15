@@ -28,6 +28,7 @@ export default function App() {
   const [message, setMessage] = useState("");
   const [showAdmin, setShowAdmin] =
     useState(false);
+  const isMobile = window.innerWidth <= 768;
 
   const adminPassword = "RABBANI2026";
 
@@ -413,36 +414,37 @@ export default function App() {
       <div
         style={{
   display: "grid",
-  gridTemplateColumns: "repeat(6, 1fr)",
+  gridTemplateColumns: isMobile
+    ? "1fr"
+    : "repeat(6, 1fr)",
   gap: "20px",
   alignItems: "start",
-  maxWidth: "1400px",
+  maxWidth: "1600px",
   margin: "0 auto",
-  justifyContent: "center",
 }}
       >
         {candidates.map((candidate) => (
   <div
     key={candidate.id}
-    style={{
-      gridColumn:
-        candidate.id === 4
-          ? "2 / 4"
-          : candidate.id === 5
-          ? "4 / 6"
-          : "span 2",
-
-      background: "white",
-      borderRadius: "20px",
-      padding: "18px",
-    }}
+style={{
+  gridColumn: isMobile
+    ? "auto"
+    : candidate.id === 4
+    ? "2 / 4"
+    : candidate.id === 5
+    ? "4 / 6"
+    : "span 2",
+  background: "white",
+  borderRadius: "20px",
+  padding: "18px",
+}}
   >
             <img
               src={candidate.image}
               alt={candidate.name}
               style={{
                 width: "100%",
-                height: "220px",
+                height: isMobile ? "320px" : "220px",
                 objectFit: "cover",
                 borderRadius: "12px",
               }}
