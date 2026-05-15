@@ -587,6 +587,17 @@ style={{
           </div>
         ))}
       </div>
+      <div
+  style={{
+    marginTop: "60px",
+    textAlign: "center",
+    color: "#af4df5",
+    fontSize: "14px",
+    paddingBottom: "20px",
+  }}
+>
+(c) AmbuPurple• Mei 2026
+</div>
     </div>
   );
 }
