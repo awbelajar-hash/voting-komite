@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { db } from "./firebase";
+
 import {
   collection,
   addDoc,
@@ -12,17 +13,27 @@ import {
 export default function App() {
   const now = new Date();
 
-const startVoting = new Date("2025-05-01T08:00:00+07:00");
+  const startVoting = new Date(
+    "2025-05-01T08:00:00+07:00"
+  );
 
-const endVoting = new Date("2027-05-18T19:00:00+07:00");
+  const endVoting = new Date(
+    "2027-05-18T19:00:00+07:00"
+  );
 
-const isVotingOpen =
-  now >= startVoting && now <= endVoting;
+  const isVotingOpen =
+    now >= startVoting && now <= endVoting;
+
   const [code, setCode] = useState("");
   const [message, setMessage] = useState("");
-  const [showAdmin, setShowAdmin] = useState(false);
+  const [showAdmin, setShowAdmin] =
+    useState(false);
+
   const adminPassword = "RABBANI2026";
-  const [validated, setValidated] = useState(false);
+
+  const [validated, setValidated] =
+    useState(false);
+
   const [validatedStudent, setValidatedStudent] =
     useState(null);
 
@@ -33,32 +44,36 @@ const isVotingOpen =
     4: 0,
     5: 0,
   });
-useEffect(() => {
-  const unsubscribe = onSnapshot(
-    collection(db, "votes"),
-    (snapshot) => {
-      const counts = {
-        1: 0,
-        2: 0,
-        3: 0,
-        4: 0,
-        5: 0,
-      };
 
-      snapshot.forEach((doc) => {
-        const data = doc.data();
+  useEffect(() => {
+    const unsubscribe = onSnapshot(
+      collection(db, "votes"),
+      (snapshot) => {
+        const counts = {
+          1: 0,
+          2: 0,
+          3: 0,
+          4: 0,
+          5: 0,
+        };
 
-        if (counts[data.candidate] !== undefined) {
-          counts[data.candidate]++;
-        }
-      });
+        snapshot.forEach((docItem) => {
+          const data = docItem.data();
 
-      setResults(counts);
-    }
-  );
+          if (
+            counts[data.candidate] !== undefined
+          ) {
+            counts[data.candidate]++;
+          }
+        });
 
-  return () => unsubscribe();
-}, []);
+        setResults(counts);
+      }
+    );
+
+    return () => unsubscribe();
+  }, []);
+
   const candidates = [
     {
       id: 1,
@@ -128,9 +143,12 @@ useEffect(() => {
 
   async function validateCode() {
     if (!isVotingOpen) {
-  setMessage("Voting belum dibuka atau sudah ditutup.");
-  return;
-}
+      setMessage(
+        "Voting belum dibuka atau sudah ditutup."
+      );
+      return;
+    }
+
     const cleanCode = code.trim();
 
     if (!cleanCode) {
@@ -149,9 +167,11 @@ useEffect(() => {
 
       if (!codeSnap.exists()) {
         setValidated(false);
+
         setMessage(
           "Kode voting tidak ditemukan."
         );
+
         return;
       }
 
@@ -159,9 +179,11 @@ useEffect(() => {
 
       if (data.used === true) {
         setValidated(false);
+
         setMessage(
           "Kode voting sudah digunakan."
         );
+
         return;
       }
 
@@ -181,42 +203,47 @@ useEffect(() => {
 
   async function vote(candidateId) {
     if (!isVotingOpen) {
-  alert("Voting belum dibuka atau sudah ditutup.");
-  return;
-}
-  if (!validated || !validatedStudent) {
-    alert("Validasi kode terlebih dahulu.");
-    return;
+      alert(
+        "Voting belum dibuka atau sudah ditutup."
+      );
+      return;
+    }
+
+    if (!validated || !validatedStudent) {
+      alert("Validasi kode terlebih dahulu.");
+      return;
+    }
+
+    try {
+      const usedCode = code.trim();
+
+      await addDoc(collection(db, "votes"), {
+        candidate: candidateId,
+        code: usedCode,
+        student: validatedStudent.student,
+        createdAt: new Date(),
+      });
+
+      await updateDoc(
+        doc(db, "votingCodes", usedCode),
+        {
+          used: true,
+        }
+      );
+
+      setMessage(
+        "Voting berhasil. Kode ini sudah tidak dapat digunakan lagi."
+      );
+
+      setValidated(false);
+      setValidatedStudent(null);
+      setCode("");
+    } catch (error) {
+      console.error(error);
+
+      alert("Gagal menyimpan voting.");
+    }
   }
-
-  try {
-    const usedCode = code.trim();
-
-    await addDoc(collection(db, "votes"), {
-      candidate: candidateId,
-      code: usedCode,
-      student: validatedStudent.student,
-      createdAt: new Date(),
-    });
-
-    await updateDoc(doc(db, "votingCodes", usedCode), {
-      used: true,
-    });
-
-    setResults((prev) => ({
-      ...prev,
-      [candidateId]: prev[candidateId] + 1,
-    }));
-
-    setMessage("Voting berhasil. Kode ini sudah tidak dapat digunakan lagi.");
-    setValidated(false);
-    setValidatedStudent(null);
-    setCode("");
-  } catch (error) {
-    console.error(error);
-    alert("Gagal menyimpan voting.");
-  }
-}
 
   return (
     <div
@@ -265,65 +292,70 @@ useEffect(() => {
           </h2>
 
           <h3
-  style={{
-    margin: 0,
-    color: "#475569",
-  }}
->
-  Tahun Ajaran 2026/2027
-</h3>
+            style={{
+              margin: 0,
+              color: "#475569",
+            }}
+          >
+            Tahun Ajaran 2026/2027
+          </h3>
 
-{!isVotingOpen && (
-  <div
-    style={{
-      textAlign: "center",
-      background: "#fee2e2",
-      color: "#991b1b",
-      padding: "15px",
-      borderRadius: "12px",
-      margin: "20px auto",
-      maxWidth: "700px",
-      fontWeight: "bold",
-    }}
-  >
-    Voting belum dibuka atau sudah ditutup.
-  </div>
-)}
+          <button
+            onClick={() => {
+              if (!showAdmin) {
+                const input = prompt(
+                  "Masukkan password admin"
+                );
 
-<button
-  onClick={() => {
-    if (!showAdmin) {
-      const input = prompt("Masukkan password admin");
+                if (
+                  input !== adminPassword
+                ) {
+                  alert("Password salah");
+                  return;
+                }
+              }
 
-      if (input !== adminPassword) {
-        alert("Password salah");
-        return;
-      }
-    }
-
-    setShowAdmin(!showAdmin);
-  }}
-  style={{
-    marginTop: "20px",
-    padding: "12px 20px",
-    border: "none",
-    borderRadius: "10px",
-    background: "#1e3a8a",
-    color: "white",
-    fontWeight: "bold",
-    cursor: "pointer",
-  }}
->
-  {showAdmin
-    ? "Tutup Hasil Voting"
-    : "Lihat Hasil Voting"}
-</button>
+              setShowAdmin(!showAdmin);
+            }}
+            style={{
+              marginTop: "20px",
+              padding: "12px 20px",
+              border: "none",
+              borderRadius: "10px",
+              background: "#1e3a8a",
+              color: "white",
+              fontWeight: "bold",
+              cursor: "pointer",
+            }}
+          >
+            {showAdmin
+              ? "Tutup Hasil Voting"
+              : "Lihat Hasil Voting"}
+          </button>
         </div>
       </div>
 
+      {!isVotingOpen && (
+        <div
+          style={{
+            textAlign: "center",
+            background: "#fee2e2",
+            color: "#991b1b",
+            padding: "15px",
+            borderRadius: "12px",
+            margin: "20px auto",
+            maxWidth: "700px",
+            fontWeight: "bold",
+          }}
+        >
+          Voting belum dibuka atau sudah
+          ditutup.
+        </div>
+      )}
+
       <div
         style={{
-          maxWidth: "700px",
+          maxWidth: "900px",
           margin: "auto",
           background: "white",
           padding: "30px",
@@ -331,7 +363,6 @@ useEffect(() => {
           marginBottom: "40px",
         }}
       >
-        
         <h2>Validasi Kode Voting</h2>
 
         <input
@@ -351,7 +382,24 @@ useEffect(() => {
           }}
         />
 
-      
+        <button
+          onClick={validateCode}
+          style={{
+            marginTop: "20px",
+            width: "100%",
+            padding: "15px",
+            border: "none",
+            borderRadius: "10px",
+            background: "#94a3b8",
+            color: "white",
+            fontWeight: "bold",
+            fontSize: "16px",
+            cursor: "pointer",
+          }}
+        >
+          Validasi Kode
+        </button>
+
         <p
           style={{
             marginTop: "20px",
@@ -364,22 +412,31 @@ useEffect(() => {
 
       <div
         style={{
-          display: "grid",
-          gridTemplateColumns:
-            "repeat(5, 1fr)",
-          gap: "20px",
-          alignItems: "start",
-        }}
+  display: "grid",
+  gridTemplateColumns: "repeat(6, 1fr)",
+  gap: "20px",
+  alignItems: "start",
+  maxWidth: "1400px",
+  margin: "0 auto",
+  justifyContent: "center",
+}}
       >
         {candidates.map((candidate) => (
-          <div
-            key={candidate.id}
-            style={{
-              background: "white",
-              borderRadius: "20px",
-              padding: "18px",
-            }}
-          >
+  <div
+    key={candidate.id}
+    style={{
+      gridColumn:
+        candidate.id === 4
+          ? "2 / 4"
+          : candidate.id === 5
+          ? "4 / 6"
+          : "span 2",
+
+      background: "white",
+      borderRadius: "20px",
+      padding: "18px",
+    }}
+  >
             <img
               src={candidate.image}
               alt={candidate.name}
@@ -474,40 +531,43 @@ useEffect(() => {
             </div>
 
             {showAdmin && (
-  <div
-    style={{
-      marginTop: "20px",
-      background: "#eff6ff",
-      padding: "12px",
-      borderRadius: "10px",
-      textAlign: "center",
-      border: "1px solid #bfdbfe",
-    }}
-  >
-    <div
-      style={{
-        fontSize: "14px",
-        color: "#1e3a8a",
-        fontWeight: "bold",
-      }}
-    >
-      Total Suara
-    </div>
+              <div
+                style={{
+                  marginTop: "20px",
+                  background: "#eff6ff",
+                  padding: "12px",
+                  borderRadius: "10px",
+                  textAlign: "center",
+                  border:
+                    "1px solid #bfdbfe",
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: "14px",
+                    color: "#1e3a8a",
+                    fontWeight: "bold",
+                  }}
+                >
+                  Total Suara
+                </div>
 
-    <div
-      style={{
-        fontSize: "28px",
-        fontWeight: "bold",
-        color: "#0f172a",
-      }}
-    >
-      {results[candidate.id]}
-    </div>
-  </div>
-)}
+                <div
+                  style={{
+                    fontSize: "28px",
+                    fontWeight: "bold",
+                    color: "#0f172a",
+                  }}
+                >
+                  {results[candidate.id]}
+                </div>
+              </div>
+            )}
 
             <button
-              onClick={() => vote(candidate.id)}
+              onClick={() =>
+                vote(candidate.id)
+              }
               disabled={!validated}
               style={{
                 marginTop: "15px",
