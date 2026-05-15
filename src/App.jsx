@@ -1,4 +1,3 @@
-import { importVotingCodes } from "./importVotingCodes";
 import { useEffect, useState } from "react";
 import { db } from "./firebase";
 import {
@@ -11,8 +10,18 @@ import {
 } from "firebase/firestore";
 
 export default function App() {
+  const now = new Date();
+
+const startVoting = new Date("2025-05-01T08:00:00+07:00");
+
+const endVoting = new Date("2027-05-18T19:00:00+07:00");
+
+const isVotingOpen =
+  now >= startVoting && now <= endVoting;
   const [code, setCode] = useState("");
   const [message, setMessage] = useState("");
+  const [showAdmin, setShowAdmin] = useState(false);
+  const adminPassword = "RABBANI2026";
   const [validated, setValidated] = useState(false);
   const [validatedStudent, setValidatedStudent] =
     useState(null);
@@ -118,6 +127,10 @@ useEffect(() => {
   ];
 
   async function validateCode() {
+    if (!isVotingOpen) {
+  setMessage("Voting belum dibuka atau sudah ditutup.");
+  return;
+}
     const cleanCode = code.trim();
 
     if (!cleanCode) {
@@ -167,6 +180,10 @@ useEffect(() => {
   }
 
   async function vote(candidateId) {
+    if (!isVotingOpen) {
+  alert("Voting belum dibuka atau sudah ditutup.");
+  return;
+}
   if (!validated || !validatedStudent) {
     alert("Validasi kode terlebih dahulu.");
     return;
@@ -248,13 +265,59 @@ useEffect(() => {
           </h2>
 
           <h3
-            style={{
-              margin: 0,
-              color: "#475569",
-            }}
-          >
-            Tahun Ajaran 2026/2027
-          </h3>
+  style={{
+    margin: 0,
+    color: "#475569",
+  }}
+>
+  Tahun Ajaran 2026/2027
+</h3>
+
+{!isVotingOpen && (
+  <div
+    style={{
+      textAlign: "center",
+      background: "#fee2e2",
+      color: "#991b1b",
+      padding: "15px",
+      borderRadius: "12px",
+      margin: "20px auto",
+      maxWidth: "700px",
+      fontWeight: "bold",
+    }}
+  >
+    Voting belum dibuka atau sudah ditutup.
+  </div>
+)}
+
+<button
+  onClick={() => {
+    if (!showAdmin) {
+      const input = prompt("Masukkan password admin");
+
+      if (input !== adminPassword) {
+        alert("Password salah");
+        return;
+      }
+    }
+
+    setShowAdmin(!showAdmin);
+  }}
+  style={{
+    marginTop: "20px",
+    padding: "12px 20px",
+    border: "none",
+    borderRadius: "10px",
+    background: "#1e3a8a",
+    color: "white",
+    fontWeight: "bold",
+    cursor: "pointer",
+  }}
+>
+  {showAdmin
+    ? "Tutup Hasil Voting"
+    : "Lihat Hasil Voting"}
+</button>
         </div>
       </div>
 
@@ -268,21 +331,7 @@ useEffect(() => {
           marginBottom: "40px",
         }}
       >
-        <button
-  onClick={importVotingCodes}
-  style={{
-    marginBottom: "20px",
-    padding: "12px 20px",
-    borderRadius: "10px",
-    border: "none",
-    background: "green",
-    color: "white",
-    fontWeight: "bold",
-    cursor: "pointer",
-  }}
->
-  Import Semua Kode Voting
-</button>
+        
         <h2>Validasi Kode Voting</h2>
 
         <input
@@ -302,23 +351,7 @@ useEffect(() => {
           }}
         />
 
-        <button
-  onClick={validateCode}
-  style={{
-    marginTop: "20px",
-    width: "100%",
-    padding: "15px",
-    border: "none",
-    borderRadius: "10px",
-    background: validated ? "#0f172a" : "#94a3b8",
-    color: "white",
-    fontWeight: "bold",
-    cursor: validated ? "pointer" : "not-allowed",
-  }}
->
-  Validasi Kode
-</button>
-
+      
         <p
           style={{
             marginTop: "20px",
@@ -440,17 +473,38 @@ useEffect(() => {
               )}
             </div>
 
-            <p
-              style={{
-                marginTop: "20px",
-              }}
-            >
-              Total Suara:
-              {" "}
-              <strong>
-                {results[candidate.id]}
-              </strong>
-            </p>
+            {showAdmin && (
+  <div
+    style={{
+      marginTop: "20px",
+      background: "#eff6ff",
+      padding: "12px",
+      borderRadius: "10px",
+      textAlign: "center",
+      border: "1px solid #bfdbfe",
+    }}
+  >
+    <div
+      style={{
+        fontSize: "14px",
+        color: "#1e3a8a",
+        fontWeight: "bold",
+      }}
+    >
+      Total Suara
+    </div>
+
+    <div
+      style={{
+        fontSize: "28px",
+        fontWeight: "bold",
+        color: "#0f172a",
+      }}
+    >
+      {results[candidate.id]}
+    </div>
+  </div>
+)}
 
             <button
               onClick={() => vote(candidate.id)}

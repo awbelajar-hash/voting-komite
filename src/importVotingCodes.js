@@ -140,8 +140,6 @@ export async function importVotingCodes() {
           grade,
           used: false,
         });
-
-        console.log("Berhasil import:", code);
       }
     }
 
