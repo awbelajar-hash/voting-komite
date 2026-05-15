@@ -1,0 +1,153 @@
+import { doc, setDoc } from "firebase/firestore";
+import { db } from "./firebase";
+
+const groupedStudents = {
+  "Grade 1": [
+    "AISYAH MA'RIFATUN MUMTAZA",
+    "ALYA KYRAYUDISA",
+    "ATHARAUF FALAH SADDAM",
+    "AZIZAH ALTAIRA EZHIL",
+    "AZQIARA SELINA HARTONO",
+    "CHAYRA FAYOLA ZUHE NADHIFA",
+    "DIO IBADILLAH AL RASYIQ",
+    "FATHIA BERLIAN OKTARYA",
+    "GHAITSA HANUM ISTOHA",
+    "ILEIA SHANUM PRATAMA",
+    "MADRID NAFISA KRISNU",
+    "MAINAKA HABIBIE ALFARIZHI",
+    "MUHAMMAD AT TIRMIDZI MAEMUN ZUBER",
+    "NAGENDRA MUHAMMAD AL KHALID SIREGAR",
+    "PRANSISCA ADELIA",
+    "RANIA NAJMA ANUGRAH",
+    "SABYAN SAFA ADHA",
+  ],
+
+  "Grade 2": [
+    "AHMAD ARJUNA WIJAKSONO",
+    "AYRA MAHREEN ALMAHYRA",
+    "DUSHENKA NAZIA MUNAWAR",
+    "GANES DANASTRI",
+    "HABIBIE ASHRAF PRADHANA",
+    "HANIN NUR KHADIJAH ABIYUDA",
+    "KAGUMI NARESHWARI AFFANDHI",
+    "KHALISAH AULIA DEFINA",
+    "MAULA NAFISA KRISNU",
+    "MUHAMMAD ADZKAN NASABI",
+    "MUHAMMAD FATHAN AZHARI",
+    "MUHAMMAD ZAKY AL AYYUBI",
+    "MUTIARA KARTINI PUTRI HARIANTO",
+    "QAAMA SYAHZAD ALHANAN",
+    "RADEYA MIKAIL",
+    "RAFAN TSAQIB FATHURRA",
+    "RIFQI MAULA UMAR QARIZH",
+    "VERREL ALVARO ADITYA RIYADI",
+    "YUNA KHALISA PUTRI",
+    "ZEA ALKHA QIANA",
+    "FAAEQ AHMAD ILSYAHRIAN MALDINI",
+  ],
+
+  "Grade 3": [
+    "AIMAR RIZKI ALBARI",
+    "AINAYYA NAYYIRA ALFSHEEN",
+    "AISYA RABBANI HUSEN",
+    "AKMAL BAARIQ NURUSYAFA",
+    "ALKHALIFI ZIKRI HAMIZAN",
+    "ARSYILA RAMADHANIA WIDODO",
+    "CARISHA SHAQUEENA KUMARA",
+    "DEBBY FADILLAH CLAUDIA AZZA",
+    "FATIH GIBRAN RAZIQ",
+    "FATIHA ALNAIRA SHAFIYAH",
+    "FIRSYA ADANNA RAMLI",
+    "HANIFAH AZZAHRA PERMADI",
+    "KEYFAZIA RIZKYA NUFAILLAH",
+    "KHAIRA NAMIRA RAMADHANI",
+    "MUHAMMAD CELLO EL ZHAFRAN",
+    "RAFANIA KIRANA AZZAHRA",
+    "RAIS KAMIL AL AZHARI",
+    "SHABRINA ADELLIA AFRIDHA",
+    "YAZID IZZATUL MAUZAN FIRMANSYAH",
+    "ZANEETA ZUHDA AZAMI",
+    "SEKAR PARAMITHA LARASATI",
+  ],
+
+  "Grade 4": [
+    "ARRASYI ALBY ELRAFIF",
+    "AZIMA ZAIMA ZATULIZA",
+    "AZZALEEA NATHANIA RAKYAT",
+    "DAFFA PRASETYA HARIANTO",
+    "FAWWAZ RAHMAN PUTRA",
+    "GYAN RAZIQ HANAN",
+    "HAMIZAN ALI NUGROHO",
+    "KHADZIYA SAVAIRA PONZA",
+    "KHAULAH SETIA CANTIGI",
+    "MIKA AFIYA RAHMA ABIYUDA",
+    "MUHAMMAD RISQI RAMADHANI",
+    "NIRWANA NEVILLE ABRISAM MUNAWAR",
+    "NUMERO UNO AL AZHARI",
+    "SYAFIRA FATIMAH AZZAHRA",
+  ],
+
+  "Grade 5": [
+    "ALESHA KAMANIA WIBOWO",
+    "ANNISA BELLVANIA CINTAKIRANA",
+    "AZHAR ZAHIR",
+    "CHANRAMA ARKANA NURDIN",
+    "DAFAIRA EDNANDA HAFIZHA",
+    "KIANDKA MUMTAZA RAMADHANY",
+    "LAISYA PUTRI SYALSABILA",
+    "MILAN KHALFANI YURIZA",
+    "SHAKA CHONAN KUMARA",
+    "ZAFRAN ALTAMIS ADHINUR",
+    "ARIQA NAZIFA NUGRAHA",
+    "ZUHAIRY ZUHDA AZAMI",
+  ],
+
+  "Grade 6": [
+    "ADRIAN ATHALLAH",
+    "AZIZA ZAFIRA ZATULINA",
+    "DEVIN KIANOVERY NANDRAWAN",
+    "DIAN SAVITRI TAMBUNAN",
+    "MAYDA ALIYA HUSNA",
+    "MAYDA FALILAH",
+    "MUHAMAD NADHIF AL MUSYAFFA",
+    "MUHAMMAD GIBRAN ALMAIR HODY",
+    "NAYLA ASSYIFA",
+    "RAFI RYANDHIKA ADRIANO",
+    "RAMADHAN PRATAMA ATHAYABIMA",
+    "SULTHAAN SYAKIIL MUBAARAK",
+    "VALERY MALIKA AZZURA RASYAD",
+    "ZEVANNA RIANTI",
+    "ZULFAN RAFIANDRA SYAHPUTRA",
+  ],
+};
+
+export async function importVotingCodes() {
+  try {
+    for (const grade in groupedStudents) {
+      const students = groupedStudents[grade];
+
+      const gradeNumber = grade.replace("Grade ", "");
+
+      for (let i = 0; i < students.length; i++) {
+        const student = students[i];
+
+        const codeNumber = String(i + 1).padStart(3, "0");
+
+        const code = `RIS-G${gradeNumber}-${codeNumber}`;
+
+        await setDoc(doc(db, "votingCodes", code), {
+          student,
+          grade,
+          used: false,
+        });
+
+        console.log("Berhasil import:", code);
+      }
+    }
+
+    alert("Semua kode voting berhasil diimport.");
+  } catch (error) {
+    console.error(error);
+    alert("Gagal import data.");
+  }
+}
