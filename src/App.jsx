@@ -572,15 +572,18 @@ style={{
               }
               disabled={!validated}
               style={{
-                marginTop: "15px",
-                width: "100%",
-                padding: "15px",
-                border: "none",
-                borderRadius: "10px",
-                background: "#0f172a",
-                color: "white",
-                fontWeight: "bold",
-              }}
+  marginTop: "15px",
+  width: "100%",
+  padding: "15px",
+  border: "none",
+  borderRadius: "10px",
+  background: validated ? "#0f172a" : "#cbd5e1",
+  color: "white",
+  fontWeight: "bold",
+  fontSize: "15px",
+  cursor: validated ? "pointer" : "not-allowed",
+  transition: "0.3s",
+}}
             >
               Pilih Kandidat
             </button>
