@@ -37,6 +37,7 @@ export default function App() {
 
   const [validatedStudent, setValidatedStudent] =
     useState(null);
+  const [selectedCandidate, setSelectedCandidate] = useState(null);
 
   const [results, setResults] = useState({
     1: 0,
