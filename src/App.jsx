@@ -235,6 +235,7 @@ export default function App() {
       setMessage(
         "Voting berhasil. Kode ini sudah tidak dapat digunakan lagi."
       );
+      setSelectedCandidate(candidateId);
 
       setValidated(false);
       setValidatedStudent(null);
@@ -289,7 +290,7 @@ export default function App() {
               color: "#1e3a8a",
             }}
           >
-            SD RABBANI ISLAMIC SCHOOL
+            SDI RABBANI ISLAMIC SCHOOL
           </h2>
 
           <h3
@@ -567,26 +568,34 @@ style={{
             )}
 
             <button
-              onClick={() =>
-                vote(candidate.id)
-              }
-              disabled={!validated}
-              style={{
-  marginTop: "15px",
-  width: "100%",
-  padding: "15px",
-  border: "none",
-  borderRadius: "10px",
-  background: validated ? "#0f172a" : "#cbd5e1",
-  color: "white",
-  fontWeight: "bold",
-  fontSize: "15px",
-  cursor: validated ? "pointer" : "not-allowed",
-  transition: "0.3s",
-}}
-            >
-              Pilih Kandidat
-            </button>
+  onClick={() => vote(candidate.id)}
+  disabled={!validated || selectedCandidate === candidate.id}
+  style={{
+    marginTop: "15px",
+    width: "100%",
+    padding: "15px",
+    border: "none",
+    borderRadius: "10px",
+    background:
+      selectedCandidate === candidate.id
+        ? "#16a34a"
+        : validated
+        ? "#0f172a"
+        : "#cbd5e1",
+    color: "white",
+    fontWeight: "bold",
+    fontSize: "15px",
+    cursor:
+      validated && selectedCandidate !== candidate.id
+        ? "pointer"
+        : "not-allowed",
+    transition: "0.3s",
+  }}
+>
+  {selectedCandidate === candidate.id
+    ? "✅ Suara Berhasil Dikirim"
+    : "Pilih Kandidat"}
+</button>
           </div>
         ))}
       </div>
