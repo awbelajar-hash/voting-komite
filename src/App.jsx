@@ -252,7 +252,7 @@ export default function App() {
     <div
       style={{
         minHeight: "100vh",
-        background: "#c8f1de",
+        background: "#fefce8",
         padding: "40px",
         fontFamily: "Arial",
       }}
