@@ -75,7 +75,10 @@ export default function App() {
 
     return () => unsubscribe();
   }, []);
-
+const totalVotes = Object.values(results).reduce(
+  (total, value) => total + value,
+  0
+);
   const candidates = [
     {
       id: 1,
@@ -302,7 +305,19 @@ export default function App() {
           >
             Tahun Ajaran 2026/2027
           </h3>
-
+<div
+  style={{
+    marginTop: "15px",
+    background: "#dcfce7",
+    color: "#166534",
+    padding: "12px 20px",
+    borderRadius: "10px",
+    fontWeight: "bold",
+    display: "inline-block",
+  }}
+>
+  Total Suara Masuk: {totalVotes}
+</div>
           <button
             onClick={() => {
               if (!showAdmin) {
