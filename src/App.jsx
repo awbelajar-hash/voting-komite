@@ -13,13 +13,9 @@ import {
 export default function App() {
   const now = new Date();
 
-  const startVoting = new Date(
-    "2025-05-01T08:00:00+07:00"
-  );
+  const startVoting = new Date("2026-05-18T08:00:00+07:00");
 
-  const endVoting = new Date(
-    "2027-05-18T19:00:00+07:00"
-  );
+const endVoting = new Date("2026-05-18T19:00:00+07:00");
 
   const isVotingOpen =
     now >= startVoting && now <= endVoting;
@@ -38,7 +34,7 @@ export default function App() {
   const [validatedStudent, setValidatedStudent] =
     useState(null);
   const [selectedCandidate, setSelectedCandidate] = useState(null);
-
+  const [isVoting, setIsVoting] = useState(false);
   const [results, setResults] = useState({
     1: 0,
     2: 0,
@@ -218,7 +214,9 @@ const totalVotes = Object.values(results).reduce(
       alert("Validasi kode terlebih dahulu.");
       return;
     }
+if (isVoting) return;
 
+setIsVoting(true);
     try {
       const usedCode = code.trim();
 
@@ -246,7 +244,7 @@ const totalVotes = Object.values(results).reduce(
       setCode("");
     } catch (error) {
       console.error(error);
-
+setIsVoting(false);
       alert("Gagal menyimpan voting.");
     }
   }
@@ -585,7 +583,7 @@ style={{
 
             <button
   onClick={() => vote(candidate.id)}
-  disabled={!validated || selectedCandidate === candidate.id}
+  disabled={!validated || isVoting}
   style={{
     marginTop: "15px",
     width: "100%",
@@ -609,8 +607,8 @@ style={{
   }}
 >
   {selectedCandidate === candidate.id
-    ? "✅ Suara Berhasil Dikirim"
-    : "Pilih Kandidat"}
+  ? "✅ Suara Berhasil Dikirim"
+  : "Pilih Kandidat"}
 </button>
           </div>
         ))}
